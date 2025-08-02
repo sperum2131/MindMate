@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+}
+
+body {
+    background-color: #ffffff;
+    background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f5f5f5' fill-opacity='0.4'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    min-height: 100vh;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.title {
+    margin-top: 35px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: #1f2937;
+    letter-spacing: -0.025em;
+}
+
+.description {
+    font-size: 1.2rem;
+    color: #6b7280;
+    margin-bottom: 40px;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.learn-section {
+    width: 100%;
+    max-width: 1000px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    margin-bottom: 30px;
+}
+
+.learn-section h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 24px;
+    letter-spacing: -0.025em;
+}
+
+.topics-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.topic-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.topic-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+.topic-card h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 12px;
+    letter-spacing: -0.025em;
+}
+
+.topic-card p {
+    color: #6b7280;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+.topic-card button {
+    background: #1a1a1a;
+    color: #ffffff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.025em;
+}
+
+.topic-card button:hover {
+    outline: none;
+    background: #272626;
+}
+
+.quick-tips {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0;
+}
+
+.quick-tips li {
+    background: #f8fafc;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #374151;
+    transition: all 0.2s ease;
+}
+
+.quick-tips li:hover {
+    background: rgba(174, 202, 205, 0.223);
+    transform: translateX(4px);
+}
+
+.quick-tips li strong {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.myths-section {
+    margin-top: 40px;
+}
+
+.myths-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.myth-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.myth-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.myth-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #dc2626;
+    margin-bottom: 12px;
+    letter-spacing: -0.025em;
+}
+
+.myth-card p {
+    color: #374151;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
