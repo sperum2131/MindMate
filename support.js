@@ -1,36 +1,41 @@
-let chatHistory = [];
-let userProfile = null;
-let isOnboarding = false;
-let isListening = false;
-let isSpeaking = false;
-let silenceTimer = null;
-let webSearchEnabled = false;
+// Chat history and user profile variables
+let chatHistoryArray = [];
+let userProfileObject = null;
+let isOnboardingActive = false;
+let isListeningToVoice = false;
+let isSpeakingText = false;
+let silenceTimerVariable = null;
+let webSearchEnabledFlag = false;
 
-const chatMessages = document.getElementById('chatMessages');
-const chatInput = document.getElementById('chatInput');
-const sendButton = document.getElementById('sendButton');
-const voiceButton = document.getElementById('voiceButton');
-const webSearchButton = document.getElementById('webSearchButton');
+// Get all the DOM elements we need
+const chatMessagesElement = document.getElementById('chatMessages');
+const chatInputElement = document.getElementById('chatInput');
+const sendButtonElement = document.getElementById('sendButton');
+const voiceButtonElement = document.getElementById('voiceButton');
+const webSearchButtonElement = document.getElementById('webSearchButton');
 
-let recognition = null;
-let synthesis = window.speechSynthesis;
+// Speech recognition and synthesis variables
+let recognitionObject = null;
+let synthesisObject = window.speechSynthesis;
 
+// Check if speech recognition is available
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
+    const SpeechRecognitionClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionObject = new SpeechRecognitionClass();
+    recognitionObject.continuous = true;
+    recognitionObject.interimResults = true;
+    recognitionObject.lang = 'en-US';
 }
 
+// Function to initialize the chat
 function initializeChat() {
-    const savedProfile = localStorage.getItem('mindmate_user_profile');
-    const savedHistory = localStorage.getItem('mindmate_chat_history');
+    const savedProfileString = localStorage.getItem('mindmate_user_profile');
+    const savedHistoryString = localStorage.getItem('mindmate_chat_history');
     
-    if (savedProfile) {
-        userProfile = JSON.parse(savedProfile);
-        if (savedHistory) {
-            chatHistory = JSON.parse(savedHistory);
+    if (savedProfileString !== null) {
+        userProfileObject = JSON.parse(savedProfileString);
+        if (savedHistoryString !== null) {
+            chatHistoryArray = JSON.parse(savedHistoryString);
             displayChatHistory();
         } else {
             startRegularChat();
@@ -40,9 +45,10 @@ function initializeChat() {
     }
 }
 
+// Function to start the onboarding process
 function startOnboarding() {
-    isOnboarding = true;
-    chatMessages.innerHTML = `
+    isOnboardingActive = true;
+    chatMessagesElement.innerHTML = `
         <div class="onboarding-container">
             <h2 class="onboarding-title">Welcome to MindMate Support</h2>
             <p class="onboarding-description">
@@ -56,29 +62,32 @@ function startOnboarding() {
     `;
     
     document.getElementById('onboardingButton').addEventListener('click', handleOnboardingSubmit);
-    document.getElementById('onboardingInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
+    document.getElementById('onboardingInput').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
             handleOnboardingSubmit();
         }
     });
 }
 
+// Function to handle onboarding submission
 function handleOnboardingSubmit() {
-    const input = document.getElementById('onboardingInput');
-    const userConcern = input.value.trim();
+    const inputElement = document.getElementById('onboardingInput');
+    const userConcernString = inputElement.value.trim();
     
-    if (!userConcern) return;
+    if (userConcernString === '') {
+        return;
+    }
     
-    userProfile = {
-        primaryConcern: userConcern,
+    userProfileObject = {
+        primaryConcern: userConcernString,
         createdAt: new Date().toISOString()
     };
     
-    localStorage.setItem('mindmate_user_profile', JSON.stringify(userProfile));
+    localStorage.setItem('mindmate_user_profile', JSON.stringify(userProfileObject));
     
-    addMessage('user', userConcern);
+    addMessage('user', userConcernString);
     
-    const assistantResponse = `Thank you for sharing that with me. I understand you're dealing with ${userConcern.toLowerCase()}. I'm here to help you with your mental health and wellness journey. 
+    const assistantResponseString = `Thank you for sharing that with me. I understand you're dealing with ${userConcernString.toLowerCase()}. I'm here to help you with your mental health and wellness journey. 
 
 I can help you with:
 • Managing stress and anxiety
@@ -89,71 +98,75 @@ I can help you with:
 
 What would you like to work on today?`;
     
-    setTimeout(() => {
-        addMessage('assistant', assistantResponse);
-        isOnboarding = false;
+    setTimeout(function() {
+        addMessage('assistant', assistantResponseString);
+        isOnboardingActive = false;
         startRegularChat();
     }, 1000);
 }
 
+// Function to start regular chat mode
 function startRegularChat() {
-    chatInput.style.display = 'block';
-    sendButton.style.display = 'flex';
-    voiceButton.style.display = 'flex';
-    webSearchButton.style.display = 'flex';
+    chatInputElement.style.display = 'block';
+    sendButtonElement.style.display = 'flex';
+    voiceButtonElement.style.display = 'flex';
+    webSearchButtonElement.style.display = 'flex';
     
-    chatInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
+    chatInputElement.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter' && event.shiftKey === false) {
+            event.preventDefault();
             sendMessage();
         }
     });
     
-    sendButton.addEventListener('click', sendMessage);
+    sendButtonElement.addEventListener('click', sendMessage);
     
-    const deleteButton = document.getElementById('deleteButton');
-    deleteButton.addEventListener('click', clearChat);
+    const deleteButtonElement = document.getElementById('deleteButton');
+    deleteButtonElement.addEventListener('click', clearChat);
     
-    voiceButton.addEventListener('click', toggleVoiceMode);
-    webSearchButton.addEventListener('click', toggleWebSearch);
+    voiceButtonElement.addEventListener('click', toggleVoiceMode);
+    webSearchButtonElement.addEventListener('click', toggleWebSearch);
 }
 
+// Function to toggle voice mode
 function toggleVoiceMode() {
-    if (!recognition) {
+    if (recognitionObject === null) {
         alert('Speech recognition is not supported in your browser. Please use Chrome or Edge.');
         return;
     }
     
-    if (isListening) {
+    if (isListeningToVoice === true) {
         stopListening();
     } else {
         startListening();
     }
 }
 
+// Function to start listening
 function startListening() {
-    if (isSpeaking) {
-        synthesis.cancel();
-        isSpeaking = false;
-        voiceButton.classList.remove('speaking');
+    if (isSpeakingText === true) {
+        synthesisObject.cancel();
+        isSpeakingText = false;
+        voiceButtonElement.classList.remove('speaking');
     }
     
-    isListening = true;
-    voiceButton.classList.add('listening');
-    voiceButton.innerHTML = `
+    isListeningToVoice = true;
+    voiceButtonElement.classList.add('listening');
+    voiceButtonElement.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
             <circle cx="12" cy="12" r="3" fill="currentColor"/>
         </svg>
     `;
     
-    recognition.start();
+    recognitionObject.start();
 }
 
+// Function to stop listening
 function stopListening() {
-    isListening = false;
-    voiceButton.classList.remove('listening');
-    voiceButton.innerHTML = `
+    isListeningToVoice = false;
+    voiceButtonElement.classList.remove('listening');
+    voiceButtonElement.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -162,36 +175,37 @@ function stopListening() {
         </svg>
     `;
     
-    if (silenceTimer) {
-        clearTimeout(silenceTimer);
-        silenceTimer = null;
+    if (silenceTimerVariable !== null) {
+        clearTimeout(silenceTimerVariable);
+        silenceTimerVariable = null;
     }
     
-    recognition.stop();
+    recognitionObject.stop();
 }
 
-function speakText(text) {
-    if (synthesis.speaking) {
-        synthesis.cancel();
+// Function to speak text
+function speakText(textToSpeak) {
+    if (synthesisObject.speaking === true) {
+        synthesisObject.cancel();
     }
     
-    isSpeaking = true;
-    voiceButton.classList.add('speaking');
-    voiceButton.innerHTML = `
+    isSpeakingText = true;
+    voiceButtonElement.classList.add('speaking');
+    voiceButtonElement.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2v20M2 10h20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     `;
     
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 0.8;
+    const utteranceObject = new SpeechSynthesisUtterance(textToSpeak);
+    utteranceObject.rate = 0.9;
+    utteranceObject.pitch = 1;
+    utteranceObject.volume = 0.8;
     
-    utterance.onend = () => {
-        isSpeaking = false;
-        voiceButton.classList.remove('speaking');
-        voiceButton.innerHTML = `
+    utteranceObject.onend = function() {
+        isSpeakingText = false;
+        voiceButtonElement.classList.remove('speaking');
+        voiceButtonElement.innerHTML = `
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -201,201 +215,211 @@ function speakText(text) {
         `;
     };
     
-    synthesis.speak(utterance);
+    synthesisObject.speak(utteranceObject);
 }
 
-if (recognition) {
-    recognition.onresult = (event) => {
-        let finalTranscript = '';
-        let interimTranscript = '';
+// Set up speech recognition event handlers
+if (recognitionObject !== null) {
+    recognitionObject.onresult = function(event) {
+        let finalTranscriptString = '';
+        let interimTranscriptString = '';
         
         for (let i = event.resultIndex; i < event.results.length; i++) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-                finalTranscript += transcript;
+            const transcriptString = event.results[i][0].transcript;
+            if (event.results[i].isFinal === true) {
+                finalTranscriptString = finalTranscriptString + transcriptString;
             } else {
-                interimTranscript += transcript;
+                interimTranscriptString = interimTranscriptString + transcriptString;
             }
         }
         
-        const fullTranscript = finalTranscript + interimTranscript;
-        chatInput.value = fullTranscript;
+        const fullTranscriptString = finalTranscriptString + interimTranscriptString;
+        chatInputElement.value = fullTranscriptString;
         
-        if (silenceTimer) {
-            clearTimeout(silenceTimer);
+        if (silenceTimerVariable !== null) {
+            clearTimeout(silenceTimerVariable);
         }
         
-        silenceTimer = setTimeout(() => {
-            if (fullTranscript.trim()) {
+        silenceTimerVariable = setTimeout(function() {
+            if (fullTranscriptString.trim() !== '') {
                 stopListening();
                 sendMessage();
             }
         }, 2000);
     };
     
-    recognition.onerror = (event) => {
+    recognitionObject.onerror = function(event) {
         console.error('Speech recognition error:', event.error);
         stopListening();
     };
     
-    recognition.onend = () => {
-        if (isListening) {
-            recognition.start();
+    recognitionObject.onend = function() {
+        if (isListeningToVoice === true) {
+            recognitionObject.start();
         }
     };
 }
 
-function addMessage(sender, content) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
+// Function to add a message to the chat
+function addMessage(senderType, messageContent) {
+    const messageDivElement = document.createElement('div');
+    messageDivElement.className = 'message ' + senderType;
     
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
+    const contentDivElement = document.createElement('div');
+    contentDivElement.className = 'message-content';
     
-    if (sender === 'assistant') {
-        contentDiv.innerHTML = formatMessage(content);
+    if (senderType === 'assistant') {
+        contentDivElement.innerHTML = formatMessage(messageContent);
     } else {
-        contentDiv.textContent = content;
+        contentDivElement.textContent = messageContent;
     }
     
-    messageDiv.appendChild(contentDiv);
-    chatMessages.appendChild(messageDiv);
+    messageDivElement.appendChild(contentDivElement);
+    chatMessagesElement.appendChild(messageDivElement);
     
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
     
-    if (sender === 'user') {
-        chatHistory.push({ role: 'user', content });
+    if (senderType === 'user') {
+        chatHistoryArray.push({ role: 'user', content: messageContent });
     } else {
-        chatHistory.push({ role: 'assistant', content });
+        chatHistoryArray.push({ role: 'assistant', content: messageContent });
     }
     
-    localStorage.setItem('mindmate_chat_history', JSON.stringify(chatHistory));
+    localStorage.setItem('mindmate_chat_history', JSON.stringify(chatHistoryArray));
 }
 
-function formatMessage(content) {
-    let formatted = content;
+// Function to format message content
+function formatMessage(contentString) {
+    let formattedString = contentString;
     
-    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    formattedString = formattedString.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     
-    formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    formatted = formatted.replace(/_(.*?)_/g, '<em>$1</em>');
+    formattedString = formattedString.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    formattedString = formattedString.replace(/_(.*?)_/g, '<em>$1</em>');
     
-    formatted = formatted.replace(/^•\s+(.*?)$/gm, '<li>$1</li>');
-    formatted = formatted.replace(/^-\s+(.*?)$/gm, '<li>$1</li>');
-    formatted = formatted.replace(/^\*\s+(.*?)$/gm, '<li>$1</li>');
+    formattedString = formattedString.replace(/^•\s+(.*?)$/gm, '<li>$1</li>');
+    formattedString = formattedString.replace(/^-\s+(.*?)$/gm, '<li>$1</li>');
+    formattedString = formattedString.replace(/^\*\s+(.*?)$/gm, '<li>$1</li>');
     
-    formatted = formatted.replace(/^(\d+)\.\s+(.*?)$/gm, '<li>$2</li>');
+    formattedString = formattedString.replace(/^(\d+)\.\s+(.*?)$/gm, '<li>$2</li>');
     
-    formatted = formatted.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
+    formattedString = formattedString.replace(/(<li>.*?<\/li>)/gs, '<ul>$1</ul>');
     
-    formatted = formatted.replace(/<\/ul>\s*<ul>/g, '');
+    formattedString = formattedString.replace(/<\/ul>\s*<ul>/g, '');
     
-    formatted = formatted.replace(/\n/g, '<br>');
+    formattedString = formattedString.replace(/\n/g, '<br>');
     
-    formatted = formatted.replace(/^###\s+(.*?)$/gm, '<h3>$1</h3>');
-    formatted = formatted.replace(/^##\s+(.*?)$/gm, '<h2>$1</h2>');
-    formatted = formatted.replace(/^#\s+(.*?)$/gm, '<h1>$1</h1>');
+    formattedString = formattedString.replace(/^###\s+(.*?)$/gm, '<h3>$1</h3>');
+    formattedString = formattedString.replace(/^##\s+(.*?)$/gm, '<h2>$1</h2>');
+    formattedString = formattedString.replace(/^#\s+(.*?)$/gm, '<h1>$1</h1>');
     
-    formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline;">$1</a>');
+    formattedString = formattedString.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color: #3b82f6; text-decoration: underline;">$1</a>');
     
-    return formatted;
+    return formattedString;
 }
 
+// Function to display chat history
 function displayChatHistory() {
-    chatHistory.forEach(msg => {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${msg.role}`;
+    chatHistoryArray.forEach(function(messageObject) {
+        const messageDivElement = document.createElement('div');
+        messageDivElement.className = 'message ' + messageObject.role;
         
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'message-content';
+        const contentDivElement = document.createElement('div');
+        contentDivElement.className = 'message-content';
         
-        if (msg.role === 'assistant') {
-            contentDiv.innerHTML = formatMessage(msg.content);
+        if (messageObject.role === 'assistant') {
+            contentDivElement.innerHTML = formatMessage(messageObject.content);
         } else {
-            contentDiv.textContent = msg.content;
+            contentDivElement.textContent = messageObject.content;
         }
         
-        messageDiv.appendChild(contentDiv);
-        chatMessages.appendChild(messageDiv);
+        messageDivElement.appendChild(contentDivElement);
+        chatMessagesElement.appendChild(messageDivElement);
     });
     
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
     startRegularChat();
 }
 
+// Function to show typing indicator
 function showTypingIndicator() {
-    const typingDiv = document.createElement('div');
-    typingDiv.className = 'typing-indicator';
-    typingDiv.id = 'typingIndicator';
+    const typingDivElement = document.createElement('div');
+    typingDivElement.className = 'typing-indicator';
+    typingDivElement.id = 'typingIndicator';
     
     for (let i = 0; i < 3; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'typing-dot';
-        typingDiv.appendChild(dot);
+        const dotElement = document.createElement('div');
+        dotElement.className = 'typing-dot';
+        typingDivElement.appendChild(dotElement);
     }
     
-    chatMessages.appendChild(typingDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    chatMessagesElement.appendChild(typingDivElement);
+    chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
 }
 
+// Function to hide typing indicator
 function hideTypingIndicator() {
-    const typingIndicator = document.getElementById('typingIndicator');
-    if (typingIndicator) {
-        typingIndicator.remove();
+    const typingIndicatorElement = document.getElementById('typingIndicator');
+    if (typingIndicatorElement !== null) {
+        typingIndicatorElement.remove();
     }
 }
 
+// Function to send a message
 async function sendMessage() {
-    const message = chatInput.value.trim();
-    if (!message) return;
+    const messageString = chatInputElement.value.trim();
+    if (messageString === '') {
+        return;
+    }
     
-    addMessage('user', message);
-    chatInput.value = '';
+    addMessage('user', messageString);
+    chatInputElement.value = '';
     
     showTypingIndicator();
     
     try {
-        const response = await getAIResponse(message);
+        const responseString = await getAIResponse(messageString);
         hideTypingIndicator();
-        addMessage('assistant', response);
-    } catch (error) {
+        addMessage('assistant', responseString);
+    } catch (errorObject) {
         hideTypingIndicator();
         addMessage('assistant', 'I apologize, but I\'m having trouble connecting right now. Please try again in a moment.');
-        console.error('AI Response Error:', error);
+        console.error('AI Response Error:', errorObject);
     }
 }
 
-async function getAIResponse(userMessage) {
-    const recentMessages = chatHistory.slice(-10);
-    const notes = localStorage.getItem('notes') || '';
+// Function to get AI response
+async function getAIResponse(userMessageString) {
+    const recentMessagesArray = chatHistoryArray.slice(-10);
+    const notesString = localStorage.getItem('notes') || '';
     
-    const currentMood = localStorage.getItem('mood');
-    const currentSleep = localStorage.getItem('sleep');
-    const currentStress = localStorage.getItem('stress');
+    const currentMoodValue = localStorage.getItem('mood');
+    const currentSleepValue = localStorage.getItem('sleep');
+    const currentStressValue = localStorage.getItem('stress');
     
-    let userDataContext = '';
+    let userDataContextString = '';
     
-    if (currentMood || currentSleep || currentStress) {
-        userDataContext = `
+    if (currentMoodValue !== null || currentSleepValue !== null || currentStressValue !== null) {
+        userDataContextString = `
 User's Current Day Values:
-- Mood: ${currentMood ? currentMood + '/10' : 'Not tracked today'}
-- Sleep: ${currentSleep ? currentSleep + '/10' : 'Not tracked today'}
-- Stress: ${currentStress ? currentStress + '/10' : 'Not tracked today'}`;
+- Mood: ${currentMoodValue !== null ? currentMoodValue + '/10' : 'Not tracked today'}
+- Sleep: ${currentSleepValue !== null ? currentSleepValue + '/10' : 'Not tracked today'}
+- Stress: ${currentStressValue !== null ? currentStressValue + '/10' : 'Not tracked today'}`;
     }
     
-    if (notes.trim()) {
-        userDataContext += `
+    if (notesString.trim() !== '') {
+        userDataContextString = userDataContextString + `
 
 User's Journal Notes:
-"${notes.trim()}"`;
+"${notesString.trim()}"`;
     }
     
-    let systemPrompt = `You are a compassionate mental health AI assistant for MindMate. You help users with mood, sleep, and stress management. 
+    let systemPromptString = `You are a compassionate mental health AI assistant for MindMate. You help users with mood, sleep, and stress management. 
 
-User Profile: ${userProfile ? userProfile.primaryConcern : 'Not specified'}
+User Profile: ${userProfileObject !== null ? userProfileObject.primaryConcern : 'Not specified'}
 
 CURRENT USER DATA (Real-time from tracking app):
-${userDataContext}
+${userDataContextString}
 
 Context: You have access to the last 5 messages for context. Be supportive, empathetic, and provide practical advice. Focus on mental health, wellness, and coping strategies.
 
@@ -410,8 +434,8 @@ Guidelines:
 - If they have journal notes, incorporate that context into your advice
 - IMPORTANT: The "CURRENT USER DATA" above shows the user's actual tracked values for today, not conversation history`;
 
-    if (webSearchEnabled) {
-        systemPrompt += `
+    if (webSearchEnabledFlag === true) {
+        systemPromptString = systemPromptString + `
 
 WEB SEARCH ENABLED: When the user asks for current information, resources, or specific details, you should:
 - Search the web for relevant, up-to-date information
@@ -422,77 +446,83 @@ WEB SEARCH ENABLED: When the user asks for current information, resources, or sp
 - Focus on evidence-based information and current best practices`;
     }
 
-    const messages = [
-        { role: 'system', content: systemPrompt },
-        ...recentMessages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-        })),
-        { role: 'user', content: userMessage }
+    const messagesArray = [
+        { role: 'system', content: systemPromptString },
+        ...recentMessagesArray.map(function(messageObject) {
+            return {
+                role: messageObject.role,
+                content: messageObject.content
+            };
+        }),
+        { role: 'user', content: userMessageString }
     ];
 
-    const response = await fetch(GROQ_API_URL, {
+    const responseObject = await fetch(GROQ_API_URL, {
         method: 'POST',
         headers: {
-            'Authorization': `Bearer ${GROQ_API_KEY}`,
+            'Authorization': 'Bearer ' + GROQ_API_KEY,
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             model: 'llama3-8b-8192',
-            messages: messages,
+            messages: messagesArray,
             max_tokens: 800,
             temperature: 0.7
         })
     });
 
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+    if (responseObject.ok === false) {
+        throw new Error('HTTP error! status: ' + responseObject.status);
     }
 
-    const data = await response.json();
-    return data.choices[0].message.content;
+    const dataObject = await responseObject.json();
+    return dataObject.choices[0].message.content;
 }
 
-function getCurrentWeekScores(metric) {
-    const scores = JSON.parse(localStorage.getItem(`${metric}_scores`) || '[]');
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
+// Function to get current week scores
+function getCurrentWeekScores(metricName) {
+    const scoresString = localStorage.getItem(metricName + '_scores');
+    const scoresArray = JSON.parse(scoresString || '[]');
+    const currentDate = new Date();
+    const startOfWeekDate = new Date(currentDate);
+    startOfWeekDate.setDate(currentDate.getDate() - currentDate.getDay());
+    startOfWeekDate.setHours(0, 0, 0, 0);
     
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
+    const endOfWeekDate = new Date(startOfWeekDate);
+    endOfWeekDate.setDate(startOfWeekDate.getDate() + 6);
+    endOfWeekDate.setHours(23, 59, 59, 999);
     
-    const weekScores = scores.filter(score => {
+    const weekScoresArray = scoresArray.filter(function(score) {
         const scoreDate = new Date(score.date);
-        return scoreDate >= startOfWeek && scoreDate <= endOfWeek;
+        return scoreDate >= startOfWeekDate && scoreDate <= endOfWeekDate;
     });
     
-    return weekScores;
+    return weekScoresArray;
 }
 
+// Function to clear chat
 function clearChat() {
-    if (confirm('Are you sure you want to clear the chat and reset the conversation? This will remove all chat history and start fresh.')) {
-        chatHistory = [];
+    if (confirm('Are you sure you want to clear the chat and reset the conversation? This will remove all chat history and start fresh.') === true) {
+        chatHistoryArray = [];
         localStorage.removeItem('mindmate_chat_history');
         
         localStorage.removeItem('mindmate_user_profile');
-        userProfile = null;
+        userProfileObject = null;
         
-        chatMessages.innerHTML = '';
+        chatMessagesElement.innerHTML = '';
         
         startOnboarding();
     }
 }
 
+// Function to toggle web search
 function toggleWebSearch() {
-    webSearchEnabled = !webSearchEnabled;
-    webSearchButton.classList.toggle('active');
+    webSearchEnabledFlag = !webSearchEnabledFlag;
+    webSearchButtonElement.classList.toggle('active');
     
-    if (webSearchEnabled) {
-        webSearchButton.title = 'Web Search Enabled';
-        webSearchButton.innerHTML = `
+    if (webSearchEnabledFlag === true) {
+        webSearchButtonElement.title = 'Web Search Enabled';
+        webSearchButtonElement.innerHTML = `
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
                 <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -500,8 +530,8 @@ function toggleWebSearch() {
             </svg>
         `;
     } else {
-        webSearchButton.title = 'Enable Web Search';
-        webSearchButton.innerHTML = `
+        webSearchButtonElement.title = 'Enable Web Search';
+        webSearchButtonElement.innerHTML = `
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
                 <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -510,4 +540,5 @@ function toggleWebSearch() {
     }
 }
 
+// Initialize chat when page loads
 document.addEventListener('DOMContentLoaded', initializeChat);

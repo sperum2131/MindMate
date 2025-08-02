@@ -1,164 +1,195 @@
-const updateButtons = document.querySelectorAll('.form-item button');
-const formInputs = document.querySelectorAll('.form-item input');
+// Get all the update buttons and form inputs
+const allUpdateButtons = document.querySelectorAll('.form-item button');
+const allFormInputs = document.querySelectorAll('.form-item input');
 
-updateButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const input = button.previousElementSibling;
+// Add event listeners to all update buttons
+allUpdateButtons.forEach(function(buttonElement) {
+    buttonElement.addEventListener('click', function() {
+        const inputElement = buttonElement.previousElementSibling;
         
-        if (button.textContent.includes('Update')) {
-            button.textContent = 'Save ' + button.previousElementSibling.id.charAt(0).toUpperCase() + button.previousElementSibling.id.slice(1);
-            input.readOnly = false;
-            input.focus();
-            input.classList.remove('incorrect-input');
+        if (buttonElement.textContent.includes('Update') === true) {
+            const inputId = buttonElement.previousElementSibling.id;
+            const firstLetter = inputId.charAt(0).toUpperCase();
+            const restOfString = inputId.slice(1);
+            buttonElement.textContent = 'Save ' + firstLetter + restOfString;
+            inputElement.readOnly = false;
+            inputElement.focus();
+            inputElement.classList.remove('incorrect-input');
         } else {
-            if (input.value >= 1 && input.value <= 10) {
-                saveScore(input.id, input.value);
-                input.readOnly = true;
-                button.textContent = 'Update ' + button.previousElementSibling.id.charAt(0).toUpperCase() + button.previousElementSibling.id.slice(1);
-                input.classList.remove('incorrect-input');
+            if (inputElement.value >= 1 && inputElement.value <= 10) {
+                saveScore(inputElement.id, inputElement.value);
+                inputElement.readOnly = true;
+                const inputId = buttonElement.previousElementSibling.id;
+                const firstLetter = inputId.charAt(0).toUpperCase();
+                const restOfString = inputId.slice(1);
+                buttonElement.textContent = 'Update ' + firstLetter + restOfString;
+                inputElement.classList.remove('incorrect-input');
             } else {
-                input.classList.add('incorrect-input');
-                input.focus();
+                inputElement.classList.add('incorrect-input');
+                inputElement.focus();
             }
         }
     });
 });
 
-formInputs.forEach(input => {
-    input.addEventListener('input', () => {
-        input.classList.remove('incorrect-input');
+// Add event listeners to all form inputs
+allFormInputs.forEach(function(inputElement) {
+    inputElement.addEventListener('input', function() {
+        inputElement.classList.remove('incorrect-input');
     });
     
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const button = input.nextElementSibling;
-            if (button && button.textContent.includes('Save')) {
-                button.click(); 
-                e.preventDefault();
+    inputElement.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            const buttonElement = inputElement.nextElementSibling;
+            if (buttonElement !== null && buttonElement.textContent.includes('Save') === true) {
+                buttonElement.click(); 
+                event.preventDefault();
             }
         }
     });
 });
 
-function saveScore(metric, value) {
-    const today = new Date().toDateString();
-    const scoreData = {
-        value: parseInt(value),
-        date: today,
+// Function to save a score for a specific metric
+function saveScore(metricName, scoreValue) {
+    const currentDate = new Date();
+    const todayString = currentDate.toDateString();
+    const scoreDataObject = {
+        value: parseInt(scoreValue),
+        date: todayString,
         timestamp: new Date().toISOString()
     };
     
-    let scores = JSON.parse(localStorage.getItem(`${metric}_scores`) || '[]');
+    const localStorageKey = metricName + '_scores';
+    const existingScoresString = localStorage.getItem(localStorageKey);
+    let scoresArray = JSON.parse(existingScoresString || '[]');
     
-    const todayIndex = scores.findIndex(score => score.date === today);
+    const todayIndex = scoresArray.findIndex(function(score) {
+        return score.date === todayString;
+    });
     
     if (todayIndex !== -1) {
-        scores[todayIndex] = scoreData;
+        scoresArray[todayIndex] = scoreDataObject;
     } else {
-        scores.push(scoreData);
+        scoresArray.push(scoreDataObject);
     }
     
-    if (scores.length > 30) {
-        scores = scores.slice(-30);
+    if (scoresArray.length > 30) {
+        scoresArray = scoresArray.slice(-30);
     }
     
-    localStorage.setItem(`${metric}_scores`, JSON.stringify(scores));
-    localStorage.setItem(metric, value);
+    localStorage.setItem(localStorageKey, JSON.stringify(scoresArray));
+    localStorage.setItem(metricName, scoreValue);
     
-    console.log(`${metric} scores:`, scores);
+    console.log(metricName + ' scores:', scoresArray);
     
-    if (progressChart) {
+    if (progressChart !== null) {
         updateChart();
     }
 }
 
-function loadFromLocalStorage(input) {
-    const value = localStorage.getItem(input.id);
-    if (value) {
-        input.value = value;
+// Function to load data from localStorage for a specific input
+function loadFromLocalStorage(inputElement) {
+    const storedValue = localStorage.getItem(inputElement.id);
+    if (storedValue !== null) {
+        inputElement.value = storedValue;
     }
 }
 
+// Function to reset daily scores
 function resetDailyScores() {
-    const today = new Date().toDateString();
-    const lastReset = localStorage.getItem('last_reset_date');
+    const currentDate = new Date();
+    const todayString = currentDate.toDateString();
+    const lastResetDate = localStorage.getItem('last_reset_date');
     
-    if (lastReset !== today) {
-        formInputs.forEach(input => {
-            input.value = '';
+    if (lastResetDate !== todayString) {
+        allFormInputs.forEach(function(inputElement) {
+            inputElement.value = '';
         });
-        localStorage.setItem('last_reset_date', today);
-        console.log('Daily reset completed for:', today);
+        localStorage.setItem('last_reset_date', todayString);
+        console.log('Daily reset completed for:', todayString);
     }
 }
 
+// Function to reset monthly scores
 function resetMonthlyScores() {
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
-    const lastMonthReset = localStorage.getItem('last_month_reset');
+    const currentDate = new Date();
+    const currentMonthNumber = currentDate.getMonth();
+    const currentYearNumber = currentDate.getFullYear();
+    const lastMonthResetString = localStorage.getItem('last_month_reset');
     
-    const monthKey = `${currentYear}-${currentMonth}`;
+    const monthKeyString = currentYearNumber + '-' + currentMonthNumber;
     
-    if (lastMonthReset !== monthKey) {
-        formInputs.forEach(input => {
-            localStorage.removeItem(`${input.id}_scores`);
-            console.log(`Monthly reset: cleared ${input.id}_scores`);
+    if (lastMonthResetString !== monthKeyString) {
+        allFormInputs.forEach(function(inputElement) {
+            localStorage.removeItem(inputElement.id + '_scores');
+            console.log('Monthly reset: cleared ' + inputElement.id + '_scores');
         });
-        localStorage.setItem('last_month_reset', monthKey);
-        console.log('Monthly reset completed for:', monthKey);
+        localStorage.setItem('last_month_reset', monthKeyString);
+        console.log('Monthly reset completed for:', monthKeyString);
     }
 }
 
-formInputs.forEach(input => {
-    loadFromLocalStorage(input);
-    const scores = JSON.parse(localStorage.getItem(`${input.id}_scores`) || '[]');
-    console.log(`${input.id} scores:`, scores);
+// Load data from localStorage for all inputs
+allFormInputs.forEach(function(inputElement) {
+    loadFromLocalStorage(inputElement);
+    const scoresString = localStorage.getItem(inputElement.id + '_scores');
+    const scoresArray = JSON.parse(scoresString || '[]');
+    console.log(inputElement.id + ' scores:', scoresArray);
 });
 
+// Call reset functions
 resetDailyScores();
 resetMonthlyScores();
 
+// Global variable for the chart
 let progressChart = null;
 
-function createChart(metric) {
-    const ctx = document.getElementById('progressChart');
+// Function to create the chart
+function createChart(metricName) {
+    const chartCanvas = document.getElementById('progressChart');
     
-    if (progressChart) {
+    if (progressChart !== null) {
         progressChart.destroy();
     }
     
-    const scores = JSON.parse(localStorage.getItem(`${metric}_scores`) || '[]');
+    const localStorageKey = metricName + '_scores';
+    const scoresString = localStorage.getItem(localStorageKey);
+    const scoresArray = JSON.parse(scoresString || '[]');
     
-    const currentMonth = new Date().getMonth();
-    const currentYear = new Date().getFullYear();
-    const monthScores = scores.filter(score => {
+    const currentDate = new Date();
+    const currentMonthNumber = currentDate.getMonth();
+    const currentYearNumber = currentDate.getFullYear();
+    const monthScoresArray = scoresArray.filter(function(score) {
         const scoreDate = new Date(score.date);
-        return scoreDate.getMonth() === currentMonth && scoreDate.getFullYear() === currentYear;
+        return scoreDate.getMonth() === currentMonthNumber && scoreDate.getFullYear() === currentYearNumber;
     });
     
-    monthScores.sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    const labels = monthScores.map(score => {
-        const date = new Date(score.date);
-        return date.getDate();
+    monthScoresArray.sort(function(a, b) {
+        return new Date(a.date) - new Date(b.date);
     });
     
-    const data = monthScores.map(score => score.value);
+    const labelsArray = monthScoresArray.map(function(score) {
+        const dateObject = new Date(score.date);
+        return dateObject.getDate();
+    });
     
-    progressChart = new Chart(ctx, {
+    const dataArray = monthScoresArray.map(function(score) {
+        return score.value;
+    });
+    
+    progressChart = new Chart(chartCanvas, {
         type: 'line',
         data: {
-            labels: labels,
+            labels: labelsArray,
             datasets: [{
-                label: metric.charAt(0).toUpperCase() + metric.slice(1),
-                data: data,
-                borderColor: getMetricColor(metric),
-                backgroundColor: getMetricColor(metric) + '15',
+                label: metricName.charAt(0).toUpperCase() + metricName.slice(1),
+                data: dataArray,
+                borderColor: getMetricColor(metricName),
+                backgroundColor: getMetricColor(metricName) + '15',
                 borderWidth: 3,
                 fill: true,
                 tension: 0.3,
-                pointBackgroundColor: getMetricColor(metric),
+                pointBackgroundColor: getMetricColor(metricName),
                 pointBorderColor: '#ffffff',
                 pointBorderWidth: 3,
                 pointRadius: 8,
@@ -172,7 +203,7 @@ function createChart(metric) {
             plugins: {
                 title: {
                     display: true,
-                    text: `${metric.charAt(0).toUpperCase() + metric.slice(1)} Progress - ${getMonthName(currentMonth)} ${currentYear}`,
+                    text: metricName.charAt(0).toUpperCase() + metricName.slice(1) + ' Progress - ' + getMonthName(currentMonthNumber) + ' ' + currentYearNumber,
                     font: {
                         family: 'Manrope, sans-serif',
                         size: 18,
@@ -191,7 +222,7 @@ function createChart(metric) {
                     backgroundColor: '#1f2937',
                     titleColor: '#ffffff',
                     bodyColor: '#ffffff',
-                    borderColor: getMetricColor(metric),
+                    borderColor: getMetricColor(metricName),
                     borderWidth: 2,
                     cornerRadius: 8,
                     displayColors: false,
@@ -258,123 +289,143 @@ function createChart(metric) {
             },
             elements: {
                 point: {
-                    hoverBackgroundColor: getMetricColor(metric),
+                    hoverBackgroundColor: getMetricColor(metricName),
                     hoverBorderColor: '#ffffff'
                 }
             }
         }
     });
     
-    updateChartGradient(metric);
+    updateChartGradient(metricName);
 }
 
-function getMetricColor(metric) {
-    const colors = {
+// Function to get the color for a specific metric
+function getMetricColor(metricName) {
+    const colorObject = {
         mood: '#10b981',
         sleep: '#3b82f6',
         stress: '#ef4444'
     };
-    return colors[metric] || '#6b7280';
+    return colorObject[metricName] || '#6b7280';
 }
 
-function updateChartGradient(metric) {
-    const chartWrapper = document.querySelector('.chart-wrapper');
-    const gradients = {
+// Function to update the chart gradient
+function updateChartGradient(metricName) {
+    const chartWrapperElement = document.querySelector('.chart-wrapper');
+    const gradientObject = {
         mood: 'linear-gradient(90deg, #0FBA81, #10b981, #059669)',
         sleep: 'linear-gradient(90deg, #1e40af, #3c82f6, #2563eb)',
         stress: 'linear-gradient(90deg, #ef4444, #f87171, #991b1b)'
     };
     
-    if (chartWrapper && gradients[metric]) {
-        chartWrapper.style.setProperty('--chart-gradient', gradients[metric]);
+    if (chartWrapperElement !== null && gradientObject[metricName] !== undefined) {
+        chartWrapperElement.style.setProperty('--chart-gradient', gradientObject[metricName]);
     }
 }
 
-function getMonthName(month) {
-    const months = [
+// Function to get the month name
+function getMonthName(monthNumber) {
+    const monthsArray = [
         'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
     ];
-    return months[month];
+    return monthsArray[monthNumber];
 }
 
+// Initialize everything when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     createChart('mood');
     updateWeekSummary();
     
-    const metricButtons = document.querySelectorAll('.metric-btn');
-    metricButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            metricButtons.forEach(btn => btn.classList.remove('active'));
+    const metricButtonsArray = document.querySelectorAll('.metric-btn');
+    metricButtonsArray.forEach(function(buttonElement) {
+        buttonElement.addEventListener('click', function() {
+            metricButtonsArray.forEach(function(btnElement) {
+                btnElement.classList.remove('active');
+            });
             this.classList.add('active');
             createChart(this.dataset.metric);
         });
     });
 });
 
+// Function to update the chart
 function updateChart() {
-    const activeButton = document.querySelector('.metric-btn.active');
-    if (activeButton) {
-        createChart(activeButton.dataset.metric);
+    const activeButtonElement = document.querySelector('.metric-btn.active');
+    if (activeButtonElement !== null) {
+        createChart(activeButtonElement.dataset.metric);
     }
     updateWeekSummary();
 }
 
+// Add event listener for notes
 document.getElementById('notes').addEventListener('input', saveNotes);
 
+// Function to save notes
 function saveNotes() {
-    const notes = document.getElementById('notes').value;
-    localStorage.setItem('notes', notes);
+    const notesTextarea = document.getElementById('notes');
+    const notesValue = notesTextarea.value;
+    localStorage.setItem('notes', notesValue);
 }
 
+// Function to load notes
 function loadNotes() {
-    const notes = localStorage.getItem('notes');
-    if (notes) {
-        document.getElementById('notes').value = notes;
+    const notesValue = localStorage.getItem('notes');
+    if (notesValue !== null) {
+        document.getElementById('notes').value = notesValue;
     }
 }
 
+// Load notes when page loads
 loadNotes();
 
-function getCurrentWeekScores(metric) {
-    const scores = JSON.parse(localStorage.getItem(`${metric}_scores`) || '[]');
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
+// Function to get current week scores
+function getCurrentWeekScores(metricName) {
+    const localStorageKey = metricName + '_scores';
+    const scoresString = localStorage.getItem(localStorageKey);
+    const scoresArray = JSON.parse(scoresString || '[]');
+    const currentDate = new Date();
+    const startOfWeekDate = new Date(currentDate);
+    startOfWeekDate.setDate(currentDate.getDate() - currentDate.getDay());
+    startOfWeekDate.setHours(0, 0, 0, 0);
     
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(startOfWeek.getDate() + 6);
-    endOfWeek.setHours(23, 59, 59, 999);
+    const endOfWeekDate = new Date(startOfWeekDate);
+    endOfWeekDate.setDate(startOfWeekDate.getDate() + 6);
+    endOfWeekDate.setHours(23, 59, 59, 999);
     
-    const weekScores = scores.filter(score => {
+    const weekScoresArray = scoresArray.filter(function(score) {
         const scoreDate = new Date(score.date);
-        return scoreDate >= startOfWeek && scoreDate <= endOfWeek;
+        return scoreDate >= startOfWeekDate && scoreDate <= endOfWeekDate;
     });
     
-    return weekScores;
+    return weekScoresArray;
 }
 
-function calculateWeekAverage(metric) {
-    const weekScores = getCurrentWeekScores(metric);
+// Function to calculate week average
+function calculateWeekAverage(metricName) {
+    const weekScoresArray = getCurrentWeekScores(metricName);
     
-    if (weekScores.length === 0) {
+    if (weekScoresArray.length === 0) {
         return null;
     }
     
-    const total = weekScores.reduce((sum, score) => sum + score.value, 0);
-    return Math.round((total / weekScores.length) * 10) / 10;
+    const totalSum = weekScoresArray.reduce(function(sum, score) {
+        return sum + score.value;
+    }, 0);
+    return Math.round((totalSum / weekScoresArray.length) * 10) / 10;
 }
 
+// Function to update week summary
 function updateWeekSummary() {
-    const metrics = ['mood', 'sleep', 'stress'];
+    const metricsArray = ['mood', 'sleep', 'stress'];
     
-    metrics.forEach(metric => {
-        const average = calculateWeekAverage(metric);
-        const element = document.getElementById(`week-${metric}-avg`);
+    metricsArray.forEach(function(metricName) {
+        const averageValue = calculateWeekAverage(metricName);
+        const elementId = 'week-' + metricName + '-avg';
+        const element = document.getElementById(elementId);
         
-        if (average !== null) {
-            element.textContent = average;
+        if (averageValue !== null) {
+            element.textContent = averageValue;
         } else {
             element.textContent = '-';
         }
