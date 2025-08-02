@@ -7,6 +7,7 @@
     <link rel="icon" href="icon.png">
     <link rel="stylesheet" href="home.css">
     <link rel="stylesheet" href="nav.css">
+    <script src="home.js" defer></script>
 </head>
 <body>
     <nav>
@@ -21,9 +22,27 @@
         </div>
     </nav>
     <div class="container">
-        <h1 class="title">
-            Home
-        </h1>
+        <h1 class="title">Home</h1>
+        <p class="description">
+            Update and visualize your mood, sleep, and stress levels.
+        </p>
+        <div class="form-container">
+            <div class="form-item">
+                <p class="form-item-title">Mood: </p>
+                <input type="text" placeholder="Mood (1-10)" readonly>
+                <button>Update Mood</button>
+            </div>
+            <div class="form-item">
+                <p class="form-item-title">Sleep: </p>
+                <input type="text" placeholder="Sleep (1-10)" readonly>
+                <button>Update Sleep</button>
+            </div>
+            <div class="form-item">
+                <p class="form-item-title">Stress: </p>
+                <input type="text" placeholder="Stress (1-10)" readonly>
+                <button>Update Stress</button>
+            </div>
+        </div>
     </div>
 </body>
 </html>

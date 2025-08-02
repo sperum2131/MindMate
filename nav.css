@@ -10,6 +10,13 @@ nav {
     z-index: 1000;
 }
 
+.nav-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.40rem;
+}
+
 .nav-container {
     display: flex;
     align-items: center;
