@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relax | MindMate</title>
+    <link rel="icon" href="icon.png">
+    <link rel="stylesheet" href="relax.css">
+    <link rel="stylesheet" href="nav.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="relax.js" defer></script>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="nav-title">
+                <img src="icon.png" alt="MindMate" width="40px" height="40px">
+                MindMate
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="support.html">Support</a>
+            <a href="relax.html" class="active">Relax</a>
+            <a href="learn.html">Learn</a>
+        </div>
+    </nav>
+    <div class="container">
+        <h1 class="title">Relax</h1>
+        <p class="description">
+            Take a moment to relax and clear your mind.
+        </p>
+        
+        <div class="affirmation-text" id="affirmationText">
+            Loading...
+        </div>
+        
+        <div class="breathing-container">
+            <h2>Guided Breathing Exercise</h2>
+            <p class="breathing-description">
+                Follow the circle as it expands and contracts. Take deep, slow breaths.
+            </p>
+            
+            <div class="breathing-exercise">
+                <div class="breathing-circle" id="breathingCircle">
+                    <div class="breathing-text" id="breathingText">Ready to begin</div>
+                </div>
+                
+                <div class="breathing-controls">
+                    <button id="startBreathing" class="breathing-btn">Start Exercise</button>
+                    <button id="stopBreathing" class="breathing-btn stop" style="display: none;">Stop</button>
+                    <div class="timer" id="timer">60s</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="games-container">
+            <h2>Mini Mood Games</h2>
+            <p class="games-description">
+                Simple activities to help you ground yourself and find calm.
+            </p>
+            
+            <div class="games-grid">
+                <div class="game-card" id="bubbleGame">
+                    <h3>Pop Bubbles</h3>
+                    <p>Click the bubbles to pop them. New bubbles will appear to keep the fun going!</p>
+                    <div class="game-area" id="bubbleArea">
+                        <div class="bubble" style="left: 20%; top: 30%;"></div>
+                        <div class="bubble" style="left: 60%; top: 20%;"></div>
+                        <div class="bubble" style="left: 80%; top: 50%;"></div>
+                        <div class="bubble" style="left: 30%; top: 70%;"></div>
+                        <div class="bubble" style="left: 70%; top: 80%;"></div>
+                    </div>
+                    <div class="bubble-controls">
+                        <div class="bubble-stats">
+                            <span id="bubbleCount">5</span> bubbles
+                        </div>
+                        <div class="bubble-buttons">
+                            <button class="game-btn" onclick="resetBubbles()">Reset</button>
+                            <button class="game-btn" onclick="addBubbles()">Add More</button>
+                            <button class="game-btn" onclick="toggleAutoBubbles()" id="autoBtn">Auto Add</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-card" id="shapesGame">
+                    <h3>Soothing Shapes</h3>
+                    <p>Hover over the shapes to see calming effects. No pressure, just relax.</p>
+                    <div class="shapes-game-area" id="shapesGameArea">
+                        <div class="shape circle" data-shape="circle"></div>
+                        <div class="shape square" data-shape="square"></div>
+                        <div class="shape triangle" data-shape="triangle"></div>
+                        <div class="shape diamond" data-shape="diamond"></div>
+                        <div class="shape hexagon" data-shape="hexagon"></div>
+                        <div class="shape star" data-shape="star"></div>
+                    </div>
+                    <div class="shapes-controls">
+                        <div class="shapes-stats">
+                            <span id="hoverCount">0</span> hovers
+                        </div>
+                        <div class="shapes-buttons">
+                            <button class="game-btn" onclick="resetShapes()">Reset</button>
+                            <button class="game-btn" onclick="addShapes()">Add More</button>
+                            <button class="game-btn" onclick="toggleAutoShapes()" id="autoShapesBtn">Auto Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

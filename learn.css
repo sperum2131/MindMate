@@ -26,7 +26,6 @@ input::-webkit-inner-spin-button {
     flex-direction: column;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
 }
 
 .title {
@@ -36,16 +35,13 @@ input::-webkit-inner-spin-button {
     align-items: center;
     font-weight: 700;
     font-size: 2.5rem;
-    color: #1f2937;
-    letter-spacing: -0.025em;
 }
 
 .description {
-    font-size: 1.2rem;
-    color: #6b7280;
-    margin-bottom: 40px;
+    font-size: 1.10rem;
+    color: #9c9c9c;
+    margin-bottom: 30px;
     text-align: center;
-    line-height: 1.6;
 }
 
 .learn-section {
