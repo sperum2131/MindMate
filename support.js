@@ -367,10 +367,35 @@ async function sendMessage() {
 
 async function getAIResponse(userMessage) {
     const recentMessages = chatHistory.slice(-10);
+    const notes = localStorage.getItem('notes') || '';
+    
+    const currentMood = localStorage.getItem('mood');
+    const currentSleep = localStorage.getItem('sleep');
+    const currentStress = localStorage.getItem('stress');
+    
+    let userDataContext = '';
+    
+    if (currentMood || currentSleep || currentStress) {
+        userDataContext = `
+User's Current Day Values:
+- Mood: ${currentMood ? currentMood + '/10' : 'Not tracked today'}
+- Sleep: ${currentSleep ? currentSleep + '/10' : 'Not tracked today'}
+- Stress: ${currentStress ? currentStress + '/10' : 'Not tracked today'}`;
+    }
+    
+    if (notes.trim()) {
+        userDataContext += `
+
+User's Journal Notes:
+"${notes.trim()}"`;
+    }
     
     let systemPrompt = `You are a compassionate mental health AI assistant for MindMate. You help users with mood, sleep, and stress management. 
 
 User Profile: ${userProfile ? userProfile.primaryConcern : 'Not specified'}
+
+CURRENT USER DATA (Real-time from tracking app):
+${userDataContext}
 
 Context: You have access to the last 5 messages for context. Be supportive, empathetic, and provide practical advice. Focus on mental health, wellness, and coping strategies.
 
@@ -379,7 +404,11 @@ Guidelines:
 - Provide actionable advice
 - Ask follow-up questions when helpful
 - Keep responses concise but helpful
-- Focus on mood, sleep, and stress management`;
+- Focus on mood, sleep, and stress management
+- Reference the user's current tracking data when relevant to provide personalized insights
+- If the user mentions their current values, help them understand what it might mean
+- If they have journal notes, incorporate that context into your advice
+- IMPORTANT: The "CURRENT USER DATA" above shows the user's actual tracked values for today, not conversation history`;
 
     if (webSearchEnabled) {
         systemPrompt += `
@@ -422,6 +451,25 @@ WEB SEARCH ENABLED: When the user asks for current information, resources, or sp
 
     const data = await response.json();
     return data.choices[0].message.content;
+}
+
+function getCurrentWeekScores(metric) {
+    const scores = JSON.parse(localStorage.getItem(`${metric}_scores`) || '[]');
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+    
+    const weekScores = scores.filter(score => {
+        const scoreDate = new Date(score.date);
+        return scoreDate >= startOfWeek && scoreDate <= endOfWeek;
+    });
+    
+    return weekScores;
 }
 
 function clearChat() {

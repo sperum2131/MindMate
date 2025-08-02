@@ -264,6 +264,8 @@ function createChart(metric) {
             }
         }
     });
+    
+    updateChartGradient(metric);
 }
 
 function getMetricColor(metric) {
@@ -273,6 +275,19 @@ function getMetricColor(metric) {
         stress: '#ef4444'
     };
     return colors[metric] || '#6b7280';
+}
+
+function updateChartGradient(metric) {
+    const chartWrapper = document.querySelector('.chart-wrapper');
+    const gradients = {
+        mood: 'linear-gradient(90deg, #0FBA81, #10b981, #059669)',
+        sleep: 'linear-gradient(90deg, #1e40af, #3c82f6, #2563eb)',
+        stress: 'linear-gradient(90deg, #ef4444, #f87171, #991b1b)'
+    };
+    
+    if (chartWrapper && gradients[metric]) {
+        chartWrapper.style.setProperty('--chart-gradient', gradients[metric]);
+    }
 }
 
 function getMonthName(month) {
@@ -285,6 +300,7 @@ function getMonthName(month) {
 
 document.addEventListener('DOMContentLoaded', function() {
     createChart('mood');
+    updateWeekSummary();
     
     const metricButtons = document.querySelectorAll('.metric-btn');
     metricButtons.forEach(button => {
@@ -301,6 +317,7 @@ function updateChart() {
     if (activeButton) {
         createChart(activeButton.dataset.metric);
     }
+    updateWeekSummary();
 }
 
 document.getElementById('notes').addEventListener('input', saveNotes);
@@ -318,5 +335,50 @@ function loadNotes() {
 }
 
 loadNotes();
+
+function getCurrentWeekScores(metric) {
+    const scores = JSON.parse(localStorage.getItem(`${metric}_scores`) || '[]');
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+    
+    const weekScores = scores.filter(score => {
+        const scoreDate = new Date(score.date);
+        return scoreDate >= startOfWeek && scoreDate <= endOfWeek;
+    });
+    
+    return weekScores;
+}
+
+function calculateWeekAverage(metric) {
+    const weekScores = getCurrentWeekScores(metric);
+    
+    if (weekScores.length === 0) {
+        return null;
+    }
+    
+    const total = weekScores.reduce((sum, score) => sum + score.value, 0);
+    return Math.round((total / weekScores.length) * 10) / 10;
+}
+
+function updateWeekSummary() {
+    const metrics = ['mood', 'sleep', 'stress'];
+    
+    metrics.forEach(metric => {
+        const average = calculateWeekAverage(metric);
+        const element = document.getElementById(`week-${metric}-avg`);
+        
+        if (average !== null) {
+            element.textContent = average;
+        } else {
+            element.textContent = '-';
+        }
+    });
+}
 
 

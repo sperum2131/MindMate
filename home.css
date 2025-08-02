@@ -180,6 +180,7 @@ input::-webkit-inner-spin-button {
     min-height: 400px;
     position: relative;
     margin-bottom: 30px;
+    overflow: hidden;
 }
 
 .chart-wrapper::before {
@@ -189,7 +190,7 @@ input::-webkit-inner-spin-button {
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #10b981, #3b82f6, #ef4444);
+    background: var(--chart-gradient, linear-gradient(90deg, #10b981, #3b82f6, #ef4444));
     border-radius: 16px 16px 0 0;
 }
 
@@ -236,4 +237,103 @@ input::-webkit-inner-spin-button {
     outline: none;
     border-color: #000000;
     box-shadow: 0 0 0 3px rgba(224, 224, 224, 0.4);
+}
+
+.week-summary-container {
+    margin-top: 40px;
+    width: 100%;
+    max-width: 800px;
+}
+
+.week-summary-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #1f2937;
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.week-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.summary-card {
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.summary-card:nth-child(1)::before {
+    background: linear-gradient(90deg, #0FBA81, #10b981, #059669);
+}
+
+.summary-card:nth-child(2)::before {
+    background: linear-gradient(90deg, #1e40af, #3c82f6, #2563eb);
+}
+
+.summary-card:nth-child(3)::before {
+    background: linear-gradient(90deg, #ef4444, #f87171, #991b1b);
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+.summary-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 12px;
+    letter-spacing: 0.025em;
+}
+
+.summary-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 8px;
+    letter-spacing: -0.025em;
+}
+
+.summary-label {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+}
+
+@media (max-width: 768px) {
+    .week-summary {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .summary-card {
+        padding: 20px;
+    }
+    
+    .summary-value {
+        font-size: 2rem;
+    }
 }
