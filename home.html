@@ -7,6 +7,7 @@
     <link rel="icon" href="icon.png">
     <link rel="stylesheet" href="home.css">
     <link rel="stylesheet" href="nav.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="home.js" defer></script>
 </head>
 <body>
@@ -26,21 +27,38 @@
         <p class="description">
             Update and visualize your mood, sleep, and stress levels.
         </p>
-        <div class="form-container">
-            <div class="form-item">
-                <p class="form-item-title">Mood: </p>
-                <input type="number" placeholder="Mood (1-10)" readonly id="mood">
-                <button>Update Mood</button>
+        <div style="display: flex; flex-direction: row; gap: 10px; width: 100%;">
+            <div class="form-container">
+                <div class="form-item">
+                    <p class="form-item-title">Mood: </p>
+                    <input type="number" placeholder="Mood (1-10)" readonly id="mood">
+                    <button>Update Mood</button>
+                </div>
+                <div class="form-item">
+                    <p class="form-item-title">Sleep: </p>
+                    <input type="number" placeholder="Sleep (1-10)" readonly id="sleep">
+                    <button>Update Sleep</button>
+                </div>
+                <div class="form-item">
+                    <p class="form-item-title">Stress: </p>
+                    <input type="number" placeholder="Stress (1-10)" readonly id="stress">
+                    <button>Update Stress</button>
+                </div>
             </div>
-            <div class="form-item">
-                <p class="form-item-title">Sleep: </p>
-                <input type="number" placeholder="Sleep (1-10)" readonly id="sleep">
-                <button>Update Sleep</button>
+            <textarea name="notes" id="notes" placeholder="Enter your notes here..."></textarea>
+        </div>
+        
+        <div class="graph-container">
+            <h2>Monthly Progress</h2>
+            <div class="graph-controls">
+                <div class="metric-buttons">
+                    <button class="metric-btn active" data-metric="mood">Mood</button>
+                    <button class="metric-btn" data-metric="sleep">Sleep</button>
+                    <button class="metric-btn" data-metric="stress">Stress</button>
+                </div>
             </div>
-            <div class="form-item">
-                <p class="form-item-title">Stress: </p>
-                <input type="number" placeholder="Stress (1-10)" readonly>
-                <button>Update Stress</button>
+            <div class="chart-wrapper">
+                <canvas id="progressChart"></canvas>
             </div>
         </div>
     </div>
