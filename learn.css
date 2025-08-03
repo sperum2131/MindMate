@@ -140,7 +140,7 @@ input::-webkit-inner-spin-button {
 }
 
 .quick-tips li:hover {
-    background: rgba(174, 202, 205, 0.223);
+    background: #eef0f3;
     transform: translateX(4px);
 }
 
@@ -151,6 +151,11 @@ input::-webkit-inner-spin-button {
 
 .myths-section {
     margin-top: 40px;
+}
+
+.myths-section a {
+    color: #1f2937 !important;
+    font-weight: 600;
 }
 
 .myths-list {
@@ -188,3 +193,4 @@ input::-webkit-inner-spin-button {
     line-height: 1.6;
     font-size: 0.95rem;
 }
+
