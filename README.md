@@ -16,4 +16,5 @@ In the relax page, there is a guided breathing exercise to tame your breathing. 
 ## Learn
 Here, users can learn about the 3 metrics. There are 3 articles: *Understanding Mood*, *The Science of Sleep*, and *Exploring Stress*. There are also some quick tips and myths debunked surrounding the topic of mental health.
 
+## Other
 In this day and age, mental health is a largely unaddressed issue. Mindmate aims fix this problem through a fun, interactive, and polished app. 
