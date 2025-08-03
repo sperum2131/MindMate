@@ -13,7 +13,6 @@ body {
     min-height: 100vh;
 }
 
-/* Remove scrollbar */
 ::-webkit-scrollbar {
     display: none;
 }

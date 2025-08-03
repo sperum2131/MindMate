@@ -10,7 +10,7 @@ const stopBtn = document.getElementById('stopBreathing');
 const timer = document.getElementById('timer');
 const affirmationText = document.getElementById('affirmationText');
 
-// adi can add add more quoptes in a bit
+// tell adi to come up w more quoptes in a bit
 const affirmations = [
     "Hey, you're doing better than you think.",
     "It's okay, this won't last forever.",
