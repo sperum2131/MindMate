@@ -1,338 +1,378 @@
-// Breathing exercise stuff
-let breathingIntervalVariable = null;
-let timerIntervalVariable = null;
-let isBreathingExerciseActive = false;
-let timeLeftInSeconds = 60;
+let breathingInterval = null;
+let timerInterval = null;
+let isBreathing = false;
+let timeLeft = 60;
 
-// Get all the DOM elements we need
-const breathingCircleElement = document.getElementById('breathingCircle');
-const breathingTextElement = document.getElementById('breathingText');
-const startBreathingButton = document.getElementById('startBreathing');
-const stopBreathingButton = document.getElementById('stopBreathing');
-const timerElement = document.getElementById('timer');
-const affirmationTextElement = document.getElementById('affirmationText');
+const breathingCircle = document.getElementById('breathingCircle');
+const breathingText = document.getElementById('breathingText');
+const startBtn = document.getElementById('startBreathing');
+const stopBtn = document.getElementById('stopBreathing');
+const timer = document.getElementById('timer');
+const affirmationText = document.getElementById('affirmationText');
 
-// List of positive affirmations for the user
-const listOfPositiveAffirmations = [
-    "You are enough.",
-    "This feeling will pass.",
-    "You are stronger than you think.",
-    "Every day is a new beginning.",
-    "You are worthy of love and respect.",
-    "Your feelings are valid.",
-    "You have the power to change your thoughts.",
-    "You are not alone in this.",
-    "You are capable of amazing things.",
-    "It's okay to not be okay.",
-    "You are making progress, even if it's small.",
-    "Your mental health matters.",
-    "You deserve to take care of yourself.",
-    "You are resilient and brave.",
-    "This too shall pass.",
-    "You are loved and supported.",
-    "You have overcome challenges before.",
-    "Your journey is unique and valuable.",
-    "You are doing your best.",
-    "It's okay to ask for help.",
-    "You are more than your struggles.",
-    "Every breath is a fresh start.",
-    "You have inner strength you haven't tapped yet.",
-    "You are growing through what you're going through.",
-    "Your presence matters in this world.",
-    "You are allowed to take breaks.",
-    "You are healing, even if you can't see it.",
-    "You have survived 100% of your bad days.",
-    "You are becoming the person you want to be.",
-    "You are enough, just as you are."
+// adi can add add more quoptes in a bit
+const affirmations = [
+    "Hey, you're doing better than you think.",
+    "It's okay, this won't last forever.",
+    "You've got more strength in you than you realize.",
+    "Tomorrow's a new shot at things.",
+    "You totally deserve kindness, from others and yourself.",
+    "Whatever you're feeling, it's real and it's okay.",
+    "You can totally flip the script in your head.",
+    "Seriously, you're not the only one going through this.",
+    "You can do awesome stuff, even if it doesn't feel like it right now.",
+    "It's 100% fine to not have it all together.",
+    "Tiny steps forward still count as progress.",
+    "Taking care of your mind is just as important as anything else.",
+    "You deserve a little self-care, no guilt.",
+    "You've bounced back before, you can do it again.",
+    "This rough patch? It'll pass.",
+    "There are people who care about you, even if you forget sometimes.",
+    "You've gotten through hard things before.",
+    "Your story is yours, and that's pretty cool.",
+    "Honestly, just showing up is enough some days.",
+    "Asking for help is strong, not weak.",
+    "You're not just your tough moments.",
+    "Every breath is a little reset button.",
+    "There's more strength in you than you give yourself credit for.",
+    "You're growing, even if it feels weird or slow.",
+    "You matter, even on the days you doubt it.",
+    "Breaks are allowed. Seriously.",
+    "Healing is happening, even if you can't see it yet.",
+    "You've made it through every bad day so far.",
+    "You're getting closer to who you want to be, bit by bit.",
+    "You are enough, even on your messiest days."
 ];
 
-// Function to show a random affirmation
-function displayRandomAffirmation() {
-    const randomNumber = Math.floor(Math.random() * listOfPositiveAffirmations.length);
-    const selectedAffirmation = listOfPositiveAffirmations[randomNumber];
-    affirmationTextElement.textContent = selectedAffirmation;
-}
-
-// Define the breathing phases with their properties
-const breathingPhasesArray = [
+const breathingPhases = [
     { text: 'Breathe in...', class: 'inhale', duration: 4000 },
     { text: 'Breathe out...', class: 'exhale', duration: 4000 }
 ];
 
-let currentPhaseIndex = 0;
+let currentPhase = 0;
 
-// Function to start the breathing exercise
+let breathingActive = false;
+
 function startBreathing() {
-    if (isBreathingExerciseActive === true) {
-        return;
-    }
+    if (isBreathing) return;
     
-    isBreathingExerciseActive = true;
-    startBreathingButton.style.display = 'none';
-    stopBreathingButton.style.display = 'block';
+    isBreathing = true;
+    breathingActive = true;
+    console.log('breathing just  started');
     
-    timeLeftInSeconds = 60;
-    updateTimer();
+    startBtn.style.display = 'none';
+    stopBtn.style.display = 'block';
     
-    timerIntervalVariable = setInterval(function() {
-        timeLeftInSeconds = timeLeftInSeconds - 1;
-        updateTimer();
+    timeLeft = 60;
+    timer.textContent = `${timeLeft}s`;
+    
+    // messy timer stuff
+    let countdown = setInterval(() => {
+        timeLeft--;
+        timer.textContent = `${timeLeft}s`;
         
-        if (timeLeftInSeconds <= 0) {
+        if (timeLeft <= 0) {
             stopBreathing();
         }
     }, 1000);
     
-    breathingIntervalVariable = setInterval(function() {
-        const currentPhase = breathingPhasesArray[currentPhaseIndex];
+    // breathing animation stuff
+    let breathTimer = setInterval(() => {
+        const phase = breathingPhases[currentPhase];
         
-        breathingTextElement.textContent = currentPhase.text;
-        breathingCircleElement.className = 'breathing-circle ' + currentPhase.class;
+        breathingText.textContent = phase.text;
+        breathingCircle.className = `breathing-circle ${phase.class}`;
         
-        currentPhaseIndex = (currentPhaseIndex + 1) % breathingPhasesArray.length;
+        currentPhase = (currentPhase + 1) % breathingPhases.length;
     }, 4000);
     
-    const firstPhase = breathingPhasesArray[0];
-    breathingTextElement.textContent = firstPhase.text;
-    breathingCircleElement.className = 'breathing-circle ' + firstPhase.class;
+    const phase = breathingPhases[0];
+    breathingText.textContent = phase.text;
+    breathingCircle.className = `breathing-circle ${phase.class}`;
 }
 
-// Function to stop the breathing exercise
 function stopBreathing() {
-    if (isBreathingExerciseActive === false) {
-        return;
+    if (!isBreathing) return;
+    
+    isBreathing = false;
+    breathingActive = false;
+    console.log('breathing stopped'); // debug
+    
+    startBtn.style.display = 'block';
+    stopBtn.style.display = 'none';
+    
+    breathingText.textContent = 'Ready to begin';
+    breathingCircle.className = 'breathing-circle';
+    
+    // clear the timers
+    if (breathingInterval) {
+        clearInterval(breathingInterval);
+        breathingInterval = null;
     }
     
-    isBreathingExerciseActive = false;
-    startBreathingButton.style.display = 'block';
-    stopBreathingButton.style.display = 'none';
-    
-    breathingTextElement.textContent = 'Ready to begin';
-    breathingCircleElement.className = 'breathing-circle';
-    
-    if (breathingIntervalVariable !== null) {
-        clearInterval(breathingIntervalVariable);
-        breathingIntervalVariable = null;
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
     }
     
-    if (timerIntervalVariable !== null) {
-        clearInterval(timerIntervalVariable);
-        timerIntervalVariable = null;
-    }
-    
-    timeLeftInSeconds = 60;
-    updateTimer();
-    currentPhaseIndex = 0;
+    timeLeft = 60;
+    timer.textContent = `${timeLeft}s`;
+    currentPhase = 0;
 }
 
-// Function to update the timer display
-function updateTimer() {
-    timerElement.textContent = timeLeftInSeconds + 's';
-}
+// show random quote
+const randomIndex = Math.floor(Math.random() * affirmations.length);
+affirmationText.textContent = affirmations[randomIndex];
 
-// Add event listeners for the breathing buttons
-startBreathingButton.addEventListener('click', startBreathing);
-stopBreathingButton.addEventListener('click', stopBreathing);
+// bubble game stuff
+let bubbleCount = 5;
+let autoAddInterval = null;
+let isAutoAdding = false;
 
-// Show a random affirmation when the page loads
-document.addEventListener('DOMContentLoaded', displayRandomAffirmation);
-
-// Bubble game variables
-let numberOfBubbles = 5;
-let autoAddBubbleInterval = null;
-let isAutoAddingBubbles = false;
-
-// Shapes game variables
-let numberOfHovers = 0;
-let autoAddShapesInterval = null;
+let hoverCount = 0;
+let autoShapesInterval = null;
 let isAutoAddingShapes = false;
 
-// Function to initialize the bubble game
-function initBubbleGame() {
-    const bubbleAreaElement = document.getElementById('bubbleArea');
-    const allBubbleElements = document.querySelectorAll('.bubble');
-    
-    for (let i = 0; i < allBubbleElements.length; i++) {
-        const currentBubble = allBubbleElements[i];
-        currentBubble.addEventListener('click', function() {
-            currentBubble.classList.add('popped');
-            setTimeout(function() {
-                currentBubble.remove();
-                numberOfBubbles = numberOfBubbles - 1;
-                updateBubbleCount();
-                createNewBubble(bubbleAreaElement);
-            }, 300);
-        });
-    }
-    
-    updateBubbleCount();
-}
+// setup bubble game
+const bubbleArea = document.getElementById('bubbleArea');
+const bubbles = document.querySelectorAll('.bubble');
 
-// Function to create a new bubble
-function createNewBubble(areaElement) {
-    const newBubbleElement = document.createElement('div');
-    newBubbleElement.className = 'bubble';
-    
-    const randomLeftPosition = Math.random() * 80 + 10; 
-    const randomTopPosition = Math.random() * 80 + 10; 
-    
-    newBubbleElement.style.left = randomLeftPosition + '%';
-    newBubbleElement.style.top = randomTopPosition + '%';
-    
-    newBubbleElement.addEventListener('click', function() {
-        newBubbleElement.classList.add('popped');
-        setTimeout(function() {
-            newBubbleElement.remove();
-            numberOfBubbles = numberOfBubbles - 1;
-            updateBubbleCount();
-            createNewBubble(areaElement);
+bubbles.forEach(bubble => {
+    bubble.addEventListener('click', () => {
+        bubble.classList.add('popped');
+        setTimeout(() => {
+            bubble.remove();
+            bubbleCount--;
+            document.getElementById('bubbleCount').textContent = bubbleCount;
+            
+            const newBubble = document.createElement('div');
+            newBubble.className = 'bubble';
+            const left = Math.random() * 80 + 10; 
+            const top = Math.random() * 80 + 10; 
+            newBubble.style.left = `${left}%`;
+            newBubble.style.top = `${top}%`;
+            
+            newBubble.addEventListener('click', () => {
+                newBubble.classList.add('popped');
+                setTimeout(() => {
+                    newBubble.remove();
+                    bubbleCount--;
+                    document.getElementById('bubbleCount').textContent = bubbleCount;
+                }, 300);
+            });
+            
+            bubbleArea.appendChild(newBubble);
+            bubbleCount++;
+            document.getElementById('bubbleCount').textContent = bubbleCount;
         }, 300);
     });
-    
-    areaElement.appendChild(newBubbleElement);
-    numberOfBubbles = numberOfBubbles + 1;
-    updateBubbleCount();
-}
-
-// Function to update the bubble count display
-function updateBubbleCount() {
-    const bubbleCountDisplayElement = document.getElementById('bubbleCount');
-    bubbleCountDisplayElement.textContent = numberOfBubbles;
-}
-
-// Function to reset all bubbles
-function resetBubbles() {
-    const bubbleAreaElement = document.getElementById('bubbleArea');
-    bubbleAreaElement.innerHTML = '';
-    numberOfBubbles = 0;
-    
-    for (let i = 0; i < 5; i++) {
-        createNewBubble(bubbleAreaElement);
-    }
-}
-
-// Function to add more bubbles
-function addBubbles() {
-    const bubbleAreaElement = document.getElementById('bubbleArea');
-    
-    for (let i = 0; i < 3; i++) {
-        createNewBubble(bubbleAreaElement);
-    }
-}
-
-// Function to toggle auto adding bubbles
-function toggleAutoBubbles() {
-    const autoButtonElement = document.getElementById('autoBtn');
-    
-    if (isAutoAddingBubbles === true) {
-        clearInterval(autoAddBubbleInterval);
-        autoAddBubbleInterval = null;
-        isAutoAddingBubbles = false;
-        autoButtonElement.textContent = 'Auto Add';
-        autoButtonElement.classList.remove('active');
-    } else {
-        isAutoAddingBubbles = true;
-        autoButtonElement.textContent = 'Stop Auto';
-        autoButtonElement.classList.add('active');
-        
-        autoAddBubbleInterval = setInterval(function() {
-            const bubbleAreaElement = document.getElementById('bubbleArea');
-            createNewBubble(bubbleAreaElement);
-        }, 2000); 
-    }
-}
-
-// Function to initialize the shapes game
-function initShapesGame() {
-    const allShapeElements = document.querySelectorAll('.shape');
-    
-    for (let i = 0; i < allShapeElements.length; i++) {
-        const currentShape = allShapeElements[i];
-        currentShape.addEventListener('mouseenter', function() {
-            numberOfHovers = numberOfHovers + 1;
-            updateHoverCount();
-        });
-    }
-    
-    updateHoverCount();
-}
-
-// Function to reset all shapes
-function resetShapes() {
-    const shapesAreaElement = document.getElementById('shapesGameArea');
-    shapesAreaElement.innerHTML = '';
-    
-    const arrayOfShapeTypes = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'star'];
-    
-    for (let i = 0; i < arrayOfShapeTypes.length; i++) {
-        const currentShapeType = arrayOfShapeTypes[i];
-        const newShapeElement = document.createElement('div');
-        newShapeElement.className = 'shape ' + currentShapeType;
-        newShapeElement.dataset.shape = currentShapeType;
-        
-        newShapeElement.addEventListener('mouseenter', function() {
-            numberOfHovers = numberOfHovers + 1;
-            updateHoverCount();
-        });
-        
-        shapesAreaElement.appendChild(newShapeElement);
-    }
-    
-    numberOfHovers = 0;
-    updateHoverCount();
-}
-
-// Function to add more shapes
-function addShapes() {
-    const shapesAreaElement = document.getElementById('shapesGameArea');
-    const arrayOfShapeTypes = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'star'];
-    
-    for (let i = 0; i < 3; i++) {
-        const randomIndex = Math.floor(Math.random() * arrayOfShapeTypes.length);
-        const randomShapeType = arrayOfShapeTypes[randomIndex];
-        const newShapeElement = document.createElement('div');
-        newShapeElement.className = 'shape ' + randomShapeType;
-        newShapeElement.dataset.shape = randomShapeType;
-        
-        newShapeElement.addEventListener('mouseenter', function() {
-            numberOfHovers = numberOfHovers + 1;
-            updateHoverCount();
-        });
-        
-        shapesAreaElement.appendChild(newShapeElement);
-    }
-}
-
-// Function to toggle auto adding shapes
-function toggleAutoShapes() {
-    const autoShapesButtonElement = document.getElementById('autoShapesBtn');
-    
-    if (isAutoAddingShapes === true) {
-        clearInterval(autoAddShapesInterval);
-        autoAddShapesInterval = null;
-        isAutoAddingShapes = false;
-        autoShapesButtonElement.textContent = 'Auto Add';
-        autoShapesButtonElement.classList.remove('active');
-    } else {
-        isAutoAddingShapes = true;
-        autoShapesButtonElement.textContent = 'Stop Auto';
-        autoShapesButtonElement.classList.add('active');
-        
-        autoAddShapesInterval = setInterval(function() {
-            addShapes();
-        }, 3000);
-    }
-}
-
-// Function to update the hover count display
-function updateHoverCount() {
-    const hoverCountDisplayElement = document.getElementById('hoverCount');
-    hoverCountDisplayElement.textContent = numberOfHovers;
-}
-
-// Initialize everything when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    displayRandomAffirmation();
-    initBubbleGame();
-    initShapesGame();
 });
+
+document.getElementById('bubbleCount').textContent = bubbleCount;
+
+// reset bubbles
+const resetBubblesBtn = document.getElementById('resetBubbles');
+if (resetBubblesBtn) {
+    resetBubblesBtn.onclick = () => {
+        bubbleArea.innerHTML = '';
+        bubbleCount = 0;
+        console.log('bubbles reset'); // debug
+        
+        for (let i = 0; i < 5; i++) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const left = Math.random() * 80 + 10; 
+            const top = Math.random() * 80 + 10; 
+            bubble.style.left = `${left}%`;
+            bubble.style.top = `${top}%`;
+            
+            bubble.addEventListener('click', () => {
+                bubble.classList.add('popped');
+                setTimeout(() => {
+                    bubble.remove();
+                    bubbleCount--;
+                    document.getElementById('bubbleCount').textContent = bubbleCount;
+                }, 300);
+            });
+            
+            bubbleArea.appendChild(bubble);
+            bubbleCount++;
+            document.getElementById('bubbleCount').textContent = bubbleCount;
+        }
+    };
+}
+
+// add more bubbles
+const addBubblesBtn = document.getElementById('addBubbles');
+if (addBubblesBtn) {
+    addBubblesBtn.addEventListener('click', () => {
+        for (let i = 0; i < 3; i++) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            const left = Math.random() * 80 + 10; 
+            const top = Math.random() * 80 + 10; 
+            bubble.style.left = `${left}%`;
+            bubble.style.top = `${top}%`;
+            
+            bubble.addEventListener('click', () => {
+                bubble.classList.add('popped');
+                setTimeout(() => {
+                    bubble.remove();
+                    bubbleCount--;
+                    document.getElementById('bubbleCount').textContent = bubbleCount;
+                }, 300);
+            });
+            
+            bubbleArea.appendChild(bubble);
+            bubbleCount++;
+            document.getElementById('bubbleCount').textContent = bubbleCount;
+        }
+    });
+}
+
+// auto add bubbles
+const autoBtn = document.getElementById('autoBtn');
+if (autoBtn) {
+    autoBtn.addEventListener('click', () => {
+        if (isAutoAdding) {
+            clearInterval(autoAddInterval);
+            autoAddInterval = null;
+            isAutoAdding = false;
+            autoBtn.textContent = 'Auto Add';
+            autoBtn.classList.remove('active');
+        } else {
+            isAutoAdding = true;
+            autoBtn.textContent = 'Stop Auto';
+            autoBtn.classList.add('active');
+            
+            autoAddInterval = setInterval(() => {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const left = Math.random() * 80 + 10; 
+                const top = Math.random() * 80 + 10; 
+                bubble.style.left = `${left}%`;
+                bubble.style.top = `${top}%`;
+                
+                bubble.addEventListener('click', () => {
+                    bubble.classList.add('popped');
+                    setTimeout(() => {
+                        bubble.remove();
+                        bubbleCount--;
+                        document.getElementById('bubbleCount').textContent = bubbleCount;
+                    }, 300);
+                });
+                
+                bubbleArea.appendChild(bubble);
+                bubbleCount++;
+                document.getElementById('bubbleCount').textContent = bubbleCount;
+            }, 2000);
+        }
+    });
+}
+
+// shapes game
+const shapes = document.querySelectorAll('.shape');
+
+shapes.forEach(shape => {
+    shape.addEventListener('mouseenter', () => {
+        hoverCount++;
+        document.getElementById('hoverCount').textContent = hoverCount;
+    });
+});
+
+document.getElementById('hoverCount').textContent = hoverCount;
+
+function resetShapes() {
+    const shapesArea = document.getElementById('shapesGameArea');
+    shapesArea.innerHTML = '';
+    
+    const shapeTypes = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'star'];
+    
+    shapeTypes.forEach(type => {
+        const shape = document.createElement('div');
+        shape.className = `shape ${type}`;
+        shape.dataset.shape = type;
+        
+        shape.addEventListener('mouseenter', () => {
+            hoverCount++;
+            document.getElementById('hoverCount').textContent = hoverCount;
+        });
+        
+        shapesArea.appendChild(shape);
+    });
+    
+    hoverCount = 0;
+    document.getElementById('hoverCount').textContent = hoverCount;
+}
+
+// reset shapes
+const resetShapesBtn = document.getElementById('resetShapes');
+if (resetShapesBtn) {
+    resetShapesBtn.onclick = resetShapes;
+}
+
+// add shapes
+const addShapesBtn = document.getElementById('addShapes');
+if (addShapesBtn) {
+    addShapesBtn.addEventListener('click', () => {
+        const shapesArea = document.getElementById('shapesGameArea');
+        const shapeTypes = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'star'];
+        
+        for (let i = 0; i < 3; i++) {
+            const randomType = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
+            const shape = document.createElement('div');
+            shape.className = `shape ${randomType}`;
+            shape.dataset.shape = randomType;
+            
+            shape.addEventListener('mouseenter', () => {
+                hoverCount++;
+                document.getElementById('hoverCount').textContent = hoverCount;
+            });
+            
+            shapesArea.appendChild(shape);
+        }
+    });
+}
+
+// auto add shapes
+const autoShapesBtn = document.getElementById('autoShapesBtn');
+if (autoShapesBtn) {
+    autoShapesBtn.addEventListener('click', () => {
+        if (isAutoAddingShapes) {
+            clearInterval(autoShapesInterval);
+            autoShapesInterval = null;
+            isAutoAddingShapes = false;
+            autoShapesBtn.textContent = 'Auto Add';
+            autoShapesBtn.classList.remove('active');
+        } else {
+            isAutoAddingShapes = true;
+            autoShapesBtn.textContent = 'Stop Auto';
+            autoShapesBtn.classList.add('active');
+            
+            autoShapesInterval = setInterval(() => {
+                const shapesArea = document.getElementById('shapesGameArea');
+                const shapeTypes = ['circle', 'square', 'triangle', 'diamond', 'hexagon', 'star'];
+                
+                for (let i = 0; i < 3; i++) {
+                    const randomType = shapeTypes[Math.floor(Math.random() * shapeTypes.length)];
+                    const shape = document.createElement('div');
+                    shape.className = `shape ${randomType}`;
+                    shape.dataset.shape = randomType;
+                    
+                    shape.addEventListener('mouseenter', () => {
+                        hoverCount++;
+                        document.getElementById('hoverCount').textContent = hoverCount;
+                    });
+                    
+                    shapesArea.appendChild(shape);
+                }
+            }, 3000);
+        }
+    });
+}
+
+// bind events later, scattered around
+startBtn.onclick = startBreathing;
+stopBtn.onclick = stopBreathing;
+
+// add ambient sound player aug 3rd maybe

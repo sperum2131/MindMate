@@ -13,7 +13,6 @@ body {
     min-height: 100vh;
 }
 
-/* Remove scrollbar */
 ::-webkit-scrollbar {
     display: none;
 }
@@ -59,6 +58,19 @@ input::-webkit-inner-spin-button {
     text-align: center;
     line-height: 1.6;
     font-style: italic;
+    animation: goupanddown 4s ease-in-out infinite;
+}
+
+@keyframes goupanddown {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+    100% {
+        transform: translateY(0);
+    }
 }
 
 .breathing-container {
@@ -447,42 +459,4 @@ input::-webkit-inner-spin-button {
     border-color: #10b981;
 }
 
-@media (max-width: 768px) {
-    .games-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .game-card {
-        padding: 20px;
-    }
-    
-    .game-area, .shapes-game-area {
-        height: 150px;
-    }
-    
-    .bubble {
-        width: 30px;
-        height: 30px;
-    }
-    
-    .shapes-game-area {
-        gap: 15px;
-        padding: 20px;
-    }
-    
-    .shape {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .bubble-controls, .shapes-controls {
-        flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
-    }
-    
-    .bubble-buttons, .shapes-buttons {
-        justify-content: center;
-    }
-}
+
